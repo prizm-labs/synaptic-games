@@ -1,0 +1,5 @@
+- Confirm WiFi Network
+- Find Linux Server on network
+- Begin UDP reception for TUIO events
+- Register TUIO touch events delegate
+- Translate TUI
