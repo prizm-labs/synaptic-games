@@ -25,15 +25,6 @@ import Foundation
     //    touchesCancelled:withEvent: method when the touch sequence is canceled by a system event, such as an incoming phone call.
 }
 
-class SYNEvent:NSObject {
-    
-    override init(){
-        super.init()
-    }
-}
-
-
-
 class SYNGestureRecognizer {
     var delegate:SYNGestureRecognizerDelegate?
 }

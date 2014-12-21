@@ -21,6 +21,8 @@ class SYNApplication: UIApplication, NSStreamDelegate
     var streamCache:NSString? = nil
     var streamFeed:NSString? = nil
     
+    var secondWindow:UIWindow!
+    
 //    override func sendEvent(event: UIEvent)
 //    {
 //        println("send event \(event)") // this is an example
@@ -28,6 +30,48 @@ class SYNApplication: UIApplication, NSStreamDelegate
 //        
 //        super.sendEvent(event)
 //    }
+    func handleScreenDidConnectNotification(notification:NSNotification) {
+        let screens:NSArray = UIScreen.screens()
+        
+        if (screens.count > 1)
+        {
+            // Get the screen object that represents the external display.
+            let secondScreen:UIScreen = screens.objectAtIndex(1) as UIScreen
+            // Get the screen's bounds so that you can create a window of the correct size.
+            let screenBounds:CGRect = secondScreen.bounds
+            
+            self.secondWindow = UIWindow(frame: screenBounds)
+            self.secondWindow.screen = secondScreen
+            
+            // Set up initial content to display...
+            // Show the window.
+            self.secondWindow.hidden = false
+        }
+    }
+    
+    func handleScreenDidDisconnectNotification(notification:NSNotification) {
+        
+    }
+
+    
+    func initSecondScreen() {
+        
+        let center:NSNotificationCenter = NSNotificationCenter.defaultCenter()
+        
+        center.addObserver(self, selector:"handleScreenDidConnectNotification", name: UIScreenDidConnectNotification, object: nil)
+        center.addObserver(self, selector:"handleScreenDidConnectNotification", name: UIScreenDidConnectNotification, object: nil)
+        
+//        - (void)setUpScreenConnectionNotificationHandlers
+//            {
+//                NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+//                
+//                [center addObserver:self selector:@selector(handleScreenDidConnectNotification:)
+//                name:UIScreenDidConnectNotification object:nil];
+//                [center addObserver:self selector:@selector(handleScreenDidDisconnectNotification:)
+//                name:UIScreenDidDisconnectNotification object:nil];
+//        }
+ 
+    }
     
     func initSynSocket(){
         
