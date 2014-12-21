@@ -11,7 +11,8 @@ import Foundation
 
 class SYNApplication: UIApplication, NSStreamDelegate
 {
-    var synSocket:SYNSocket!
+    var socket:SYNSocket!
+    var responder:SYNResponder!
     
     var inputStream:NSInputStream!
     var outputStream:NSOutputStream!
@@ -30,31 +31,40 @@ class SYNApplication: UIApplication, NSStreamDelegate
     
     func initSynSocket(){
         
-        synSocket = SYNSocket(host: "10.0.1.23", OnPort: 1337)
+        responder = SYNResponder()
+        
+        socket = SYNSocket(host: "10.0.1.23", OnPort: 1337)
         //synSocket.connect()
         
-        synSocket.inputStream.delegate = self
-        synSocket.outputStream.delegate = self
+        socket.inputStream.delegate = self
+        socket.outputStream.delegate = self
         
-        synSocket.inputStream.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
-        synSocket.outputStream.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
-        synSocket.inputStream.open()
-        synSocket.outputStream.open()
+        socket.inputStream.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
+        socket.outputStream.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
+        socket.inputStream.open()
+        socket.outputStream.open()
     }
     
     func stream(aStream: NSStream, handleEvent eventCode: NSStreamEvent) {
         
         switch(eventCode) {
+            
+        case NSStreamEvent.ErrorOccurred:
+            print("ErrorOccurred")
+            
+            println("error: \(aStream.streamError)")
+            
+            break;
         case NSStreamEvent.OpenCompleted:
             print("Stream opened");
             break;
         case NSStreamEvent.HasBytesAvailable:
             
-            if (aStream == synSocket.inputStream) {
+            if (aStream == socket.inputStream) {
                 
                 var buffer = [UInt8](count: 1024, repeatedValue: 0)
-                while synSocket.inputStream.hasBytesAvailable {
-                    let result: Int = synSocket.inputStream.read(&buffer, maxLength: buffer.count)
+                while socket.inputStream.hasBytesAvailable {
+                    let result: Int = socket.inputStream.read(&buffer, maxLength: buffer.count)
                     
                     //var output:NSString = NSString(bytes: buffer, length: result, encoding: NSASCIIStringEncoding)!
                     var output:NSString = NSString(bytes: buffer, length: result, encoding: NSUTF8StringEncoding)!
@@ -79,6 +89,8 @@ class SYNApplication: UIApplication, NSStreamDelegate
             break;
         default:
             print("Unknown event")
+            println("eventCode: \(eventCode.rawValue)")
+            println("stream: \(aStream)")
         }
         
     }
@@ -148,9 +160,25 @@ class SYNApplication: UIApplication, NSStreamDelegate
     func parseMessage(data:NSData) {
         let json = JSON(data: data)
         println("parseMessage \(json)")
+        
+        
+        // if touch events
+        responder.updatesTouchesFromData(data)
+        
         if let fseq = json["fseq"].integerValue {
             println("SwiftyJSON: \(fseq)")
         }
+    }
+    
+    func dispatchEvent() {
+        
+        // get UIWindow
+        
+        // translate touch point to window coordinate system
+        // may not be 1920 x 1080...
+        
+        // get topmost
+        
     }
 
     
