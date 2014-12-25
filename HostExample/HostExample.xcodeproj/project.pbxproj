@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3277C1FB1A4BDD860041D7BC /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3277C1FA1A4BDD860041D7BC /* Utilities.swift */; };
 		327F9D561A44E862007880F6 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 327F9D551A44E862007880F6 /* main.swift */; };
 		327F9D5E1A47D184007880F6 /* bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 327F9D5D1A47D184007880F6 /* bridge.m */; };
 		327F9DF61A48F7DE007880F6 /* back-default.png in Resources */ = {isa = PBXBuildFile; fileRef = 327F9D661A48F7DD007880F6 /* back-default.png */; };
@@ -193,6 +194,7 @@
 
 /* Begin PBXFileReference section */
 		320355911A3838F200633F03 /* App-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "App-Bridging-Header.h"; sourceTree = "<group>"; };
+		3277C1FA1A4BDD860041D7BC /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		327F9D551A44E862007880F6 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		327F9D5D1A47D184007880F6 /* bridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = bridge.m; sourceTree = "<group>"; };
 		327F9D661A48F7DD007880F6 /* back-default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "back-default.png"; sourceTree = "<group>"; };
@@ -659,6 +661,7 @@
 				327F9E991A48F7F1007880F6 /* SYNApplication.swift */,
 				327F9E9A1A48F7F1007880F6 /* SYNResponder.swift */,
 				327F9E9B1A48F7F1007880F6 /* SYNSocket.swift */,
+				3277C1FA1A4BDD860041D7BC /* Utilities.swift */,
 			);
 			path = sdk;
 			sourceTree = "<group>";
@@ -1032,6 +1035,7 @@
 				327F9EA01A48F7F1007880F6 /* CardDeck.swift in Sources */,
 				327F9EA41A48F7F1007880F6 /* PlayPoint.swift in Sources */,
 				327F9EB01A48F7F1007880F6 /* SYNApplication.swift in Sources */,
+				3277C1FB1A4BDD860041D7BC /* Utilities.swift in Sources */,
 				327F9EAA1A48F7F1007880F6 /* LobbyViewController.swift in Sources */,
 				327F9E9F1A48F7F1007880F6 /* MultipeerConnection.swift in Sources */,
 				327F9EA61A48F7F1007880F6 /* PlayerController.swift in Sources */,

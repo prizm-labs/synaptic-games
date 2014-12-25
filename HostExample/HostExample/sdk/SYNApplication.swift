@@ -22,18 +22,14 @@ class SYNApplication: UIApplication, NSStreamDelegate
     
     var streamCache:NSString? = nil
     var streamFeed:NSString? = nil
+    var streamOutput:NSString? = nil
     
     var secondWindow:UIWindow!
     
     var meteorClient:MeteorClient!
+    
+    
 
-//    override func sendEvent(event: UIEvent)
-//    {
-//        println("send event \(event)") // this is an example
-//        // ... dispatch the message...
-//        
-//        super.sendEvent(event)
-//    }
     func handleScreenDidConnectNotification(notification:NSNotification) {
         let screens:NSArray = UIScreen.screens()
         
@@ -74,6 +70,8 @@ class SYNApplication: UIApplication, NSStreamDelegate
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "didReceiveUpdate:", name: "added", object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "didReceiveUpdate:", name: "removed", object: nil)
         
+        
+
     }
     
     func reportConnection() {
@@ -90,8 +88,6 @@ class SYNApplication: UIApplication, NSStreamDelegate
     
     func didReceiveUpdate(notification:NSNotification) {
         println("didReceiveUpdate: \(notification)")
-        //self.tableview.reloadData()
-        
         meteor.delegate?.didReceiveUpdate()
     }
 
@@ -102,33 +98,28 @@ class SYNApplication: UIApplication, NSStreamDelegate
         
         center.addObserver(self, selector:"handleScreenDidConnectNotification", name: UIScreenDidConnectNotification, object: nil)
         center.addObserver(self, selector:"handleScreenDidConnectNotification", name: UIScreenDidConnectNotification, object: nil)
-        
-//        - (void)setUpScreenConnectionNotificationHandlers
-//            {
-//                NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-//                
-//                [center addObserver:self selector:@selector(handleScreenDidConnectNotification:)
-//                name:UIScreenDidConnectNotification object:nil];
-//                [center addObserver:self selector:@selector(handleScreenDidDisconnectNotification:)
-//                name:UIScreenDidDisconnectNotification object:nil];
-//        }
- 
     }
     
     func initSynSocket(){
         
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "didReceiveStreamNotification:", name: "streamAlive", object: nil)
+        
         responder = SYNResponder()
         
         socket = SYNSocket(host: "10.0.1.23", OnPort: 1337)
-        //synSocket.connect()
         
         socket.inputStream.delegate = self
-        socket.outputStream.delegate = self
+
+        dispatch_async(dispatch_get_main_queue()) {
         
-        socket.inputStream.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
-        socket.outputStream.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
-        socket.inputStream.open()
-        socket.outputStream.open()
+            self.socket.inputStream.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
+            self.socket.inputStream.open()
+        }
+        
+        //socket.outputStream.delegate = self
+        //socket.outputStream.open()
+        //socket.outputStream.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
     }
     
     func stream(aStream: NSStream, handleEvent eventCode: NSStreamEvent) {
@@ -148,31 +139,63 @@ class SYNApplication: UIApplication, NSStreamDelegate
             
             if (aStream == socket.inputStream) {
                 
-                var buffer = [UInt8](count: 1024, repeatedValue: 0)
+                
+                //var buffer = [UInt8](count: 1024, repeatedValue: 0)
+                var buffer = [UInt8](count: 128, repeatedValue: 0)
+                
+                
                 while socket.inputStream.hasBytesAvailable {
+                    
                     let result: Int = socket.inputStream.read(&buffer, maxLength: buffer.count)
+                    let output:NSString = NSString(bytes: buffer, length: result, encoding: NSUTF8StringEncoding)!
                     
-                    //var output:NSString = NSString(bytes: buffer, length: result, encoding: NSASCIIStringEncoding)!
-                    var output:NSString = NSString(bytes: buffer, length: result, encoding: NSUTF8StringEncoding)!
-                    
-                    println("message: \(output)")
+                    println("NSStreamEvent.HasBytesAvailable")
+                    println("\(output)")
                     
                     if (!output.isEqualToString("Echo server")) {
-                        
-                        parseBundlesFromBuffer(output)
-                        println("bundle cache: \(bundleCache)")
-                        
-                        for (index, bundle) in enumerate(bundleCache) {
-                            parseEventsFromBundle(bundle as NSString)
+                        dispatch_async(dispatch_get_main_queue()) {
+                            NSNotificationCenter.defaultCenter().postNotificationName("streamAlive", object: nil, userInfo: ["output":output])
                         }
-                        
                     }
                     
-                    // prepare for next bundle(s)
-                    bundleCache.removeAllObjects()
                 }
+                
+//                while socket.inputStream.hasBytesAvailable {
+//
+//
+//
+//                    println("<<<<<<< message: \(output)")
+//                    
+//                    if (!output.isEqualToString("Echo server")) {
+//                        
+//                        //dispatch_async(dispatch_get_main_queue()) {
+//                            self.parseBundlesFromBuffer(output)
+//                        //}
+//                        //println("bundle cache: \(bundleCache)")
+//
+//                        // delay parsing until stream complete
+////                        for (index, bundle) in enumerate(bundleCache) {
+////                            parseEventsFromBundle(bundle as NSString)
+////                        }
+//                        
+//                    }
+//                    
+//                    // prepare for next bundle(s)
+//                    //bundleCache.removeAllObjects()
+//                    
+//                    //println("......exit read stream........")
+//                }
             }
             break;
+        
+        case NSStreamEvent.EndEncountered:
+            
+            println("NSStreamEvent.EndEncountered");
+            
+            break;
+            
+        //case NSStreamEvent.
+            
         default:
             print("Unknown event")
             println("eventCode: \(eventCode.rawValue)")
@@ -181,20 +204,33 @@ class SYNApplication: UIApplication, NSStreamDelegate
         
     }
     
+    func didReceiveStreamNotification(notification : NSNotification){
+        println("didReceiveStreamNotification")
+        
+        let tmp : [NSObject : AnyObject] = notification.userInfo!
+        let output : NSString = tmp["output"] as NSString
+        
+        //dispatch_async(dispatch_get_main_queue()) {
+            self.parseBundlesFromBuffer(output)
+        //}
+    }
+    
     func parseBundlesFromBuffer(rawString:NSString) {
         
         // if incomplete bundle, add rawString to it
-        //var feed:NSString = (streamCache != nil) ? streamCache! + rawString : rawString
         streamFeed = (streamCache != nil) ? streamCache! + rawString : rawString
         
-        println("feed from buffer:")
-        println("\(streamFeed)")
+        //println("feed from buffer:")
+        //println("\(streamFeed)")
         
         var continueParsingBundles = true
         
-        while(continueParsingBundles) {
+        while(continueParsingBundles){
             continueParsingBundles = parseStreamIntoBundle()
+            //println("_______CONTNIUE PARSING______")
         }
+        
+         //parseStreamIntoBundle()
     }
     
     func parseStreamIntoBundle() -> Bool {
@@ -207,27 +243,41 @@ class SYNApplication: UIApplication, NSStreamDelegate
             // repeat until
             // can't find end of packet (incomplete bundle)
             streamCache = NSString(string: streamFeed!)
-            println("!!!!! incomplete feed !!!!!:")
+            println("//////////////// incomplete feed /////////")
             println("\(streamCache)")
             
             return false
         }
         
         // create substring
-        var bundle:NSString = streamFeed!.substringWithRange(NSMakeRange(0,terminator.location+2))
-        println("bundle parsed: \(bundle)")
+        let bundle:NSString = self.streamFeed!.substringWithRange(NSMakeRange(0,terminator.location+2))
+        //println("BUNDLE: \(bundle)")
+        
+        
+        
+        // immediately parse bundle
+//        delay(0.01) {
+//            println(">> bundle: \(bundle)")
+//            self.parseEventsFromBundle(bundle)
+//        }
+        //println(">> bundle: \(bundle)")
+        //self.parseEventsFromBundle(bundle)
+        
+        dispatch_async(dispatch_get_main_queue()) {
+            self.parseEventsFromBundle(bundle)
+        }
         
         streamFeed = streamFeed!.substringFromIndex(terminator.location+2)
-        println("feed after bundle removed: \(streamFeed)")
+        //println("feed after bundle removed: \(streamFeed)")
         
         // add to cache
-        bundleCache.addObject(bundle)
+        //bundleCache.addObject(bundle)
         
         // repeat until
         // end of next packet is end of raw string
         if (streamFeed?.length == 0) {
             streamCache = nil
-            println("packet ended with complete bundle")
+            println("====== packet ended with complete bundle")
             return false
         }
         
@@ -236,34 +286,15 @@ class SYNApplication: UIApplication, NSStreamDelegate
     }
     
     func parseEventsFromBundle(bundle:NSString) {
-        //var data:NSData = output.dataUsingEncoding(NSASCIIStringEncoding)!
         var data:NSData = bundle.dataUsingEncoding(NSUTF8StringEncoding)!
-        //data = data.subdataWithRange(NSMakeRange(0, data.length-1))
         var dataToJson = JSON(data: data)
         parseMessage(dataToJson)
     }
     
     func parseMessage(json:JSON) {
-        println("parseMessage \(json)")
+        //println("parseMessage \(json)")
         
         // if touch events
         responder.updatesTouchesFromData(json)
-        
-        if let fseq = json["fseq"].integerValue {
-            println("SwiftyJSON: \(fseq)")
-        }
     }
-    
-    func dispatchEvent() {
-        
-        // get UIWindow
-        
-        // translate touch point to window coordinate system
-        // may not be 1920 x 1080...
-        
-        // get topmost
-        
-    }
-
-    
 }

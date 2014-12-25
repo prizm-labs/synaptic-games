@@ -155,6 +155,7 @@ class SYNResponder {
     }
     
     func removeTouch(touch:SYNTouch) {
+        //println("removeTouch")
         self.touchIDs.removeObject(touch.id)
         self.touches.removeObject(touch)
     }
@@ -196,8 +197,8 @@ class SYNResponder {
     }
     
     func updateTouchFromPointData(point:JSON) {
-        
-        println("point data: \(point)")
+        //println("updateTouchFromPointData ==============")
+        //println("point data: \(point)")
         let id:Int = point["id"].integerValue!
         let x:CGFloat = CGFloat(point["x"].integerValue!)
         let y:CGFloat = CGFloat(point["y"].integerValue!)
@@ -217,11 +218,16 @@ class SYNResponder {
         if (self.touchIDs.containsObject(id)) {
             // existing touch
             
+            
             for touch in touches.allObjects {
                 let touch:SYNTouch = touch as SYNTouch
                 
+                //println("touch id: \(touch.id) | data id: \(id)")
+                
                 if (touch.id == id) {
-                    if (touch.location != globalPoint) {
+                    //println("touch location: \(touch.location) | data location: \(globalPoint)")
+                    if (!CGPointEqualToPoint(touch.location, globalPoint)) {
+                        touch.location = globalPoint
                         touch.phase = SYNTouchPhase.Moved
                     } else {
                         touch.phase = SYNTouchPhase.Stationary
@@ -249,6 +255,8 @@ class SYNResponder {
         for touch in touches.allObjects {
             let touch:SYNTouch = touch as SYNTouch
             
+            //println("was touch \(touch.id) updated? \(touch.updated)")
+            
             if (!touch.updated) {
                 touch.phase = SYNTouchPhase.Ended
                 // BROADCAST TOUCHES ENDED
@@ -260,6 +268,8 @@ class SYNResponder {
         for touch in touches.allObjects {
             let touch:SYNTouch = touch as SYNTouch
             
+            //println("touch \(touch.id) phase: \(touch.phase)")
+            
             if (touch.phase == SYNTouchPhase.Ended) {
                 self.removeTouch(touch)
             }
@@ -267,9 +277,9 @@ class SYNResponder {
     }
     
     func updatesTouchesFromData(json:JSON) {
-        println("updatesTouchesFromData")
+        //println("updatesTouchesFromData ==============")
         
-        println("json: \(json)")
+        //println("json: \(json)")
         
         if let points:Array = json["points"].arrayValue {
             if (points.count==0) {
@@ -319,8 +329,9 @@ class SYNResponder {
     }
     
     func broadcastEvent(event:SYNEvent){
-        println("broadcastEvent")
+        //println("broadcastEvent ===================")
         
+        //NSNotificationCenter.defaultCenter().postNotificationName("touches", object:self.touches.anyObject())
         
         // touches event
         self.delegate?.syntouchesBegan!(self.touches, withEvent: event)

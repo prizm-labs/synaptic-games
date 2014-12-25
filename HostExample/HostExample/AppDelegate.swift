@@ -19,9 +19,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         //http://stackoverflow.com/questions/24819240/swift-using-objective-c-class
         
-        var synApplication:SYNApplication = application as SYNApplication
-        synApplication.initSynSocket()
+        let priority = DISPATCH_QUEUE_PRIORITY_DEFAULT
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+            var synApplication:SYNApplication = application as SYNApplication
+            synApplication.initSynSocket()
         
+        }
 //        var host:String = "10.0.1.23";
 //        var port:UInt16 = 1337;
 

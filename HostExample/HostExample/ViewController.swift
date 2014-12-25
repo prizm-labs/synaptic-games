@@ -63,14 +63,14 @@ class ViewController: UIViewController, SYNGestureRecognizerDelegate, GCDAsyncUd
 //        println("touchesBegan")
 //    }
     func syntouchesBegan(touches: NSSet, withEvent event: SYNEvent) {
-        println("touchesBegan: \(touches)")
+        //println("touchesBegan: \(touches)")
         
         var touch:SYNTouch? = touches.anyObject() as? SYNTouch
-        println("window location: \(touch?.locationInView(nil))")
+        //println("window location: \(touch?.locationInView(nil))")
         //println("view location: \(touch?.locationInView(self.view))")
         var p = touch?.locationInView(nil)
         
-        println("touch in overlay \(p?.x) , \(p?.y)")
+        //println("touch in overlay \(p?.x) , \(p?.y)")
     }
     
     func udpSocket(sock: GCDAsyncUdpSocket!, didConnectToAddress address: NSData!) {
