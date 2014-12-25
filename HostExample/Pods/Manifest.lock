@@ -1,10 +1,29 @@
 PODS:
   - CocoaAsyncSocket (HEAD based on 7.3.5)
+  - M13OrderedDictionary (1.0.6)
+  - ObjectiveDDP (0.1.9):
+    - M13OrderedDictionary
+    - SocketRocket (= 0.3.1-beta2)
+  - SocketRocket (0.3.1-beta2)
 
 DEPENDENCIES:
   - CocoaAsyncSocket (HEAD)
+  - ObjectiveDDP (from `git@github.com:boundsj/ObjectiveDDP.git`, branch `master`)
+
+EXTERNAL SOURCES:
+  ObjectiveDDP:
+    :branch: master
+    :git: git@github.com:boundsj/ObjectiveDDP.git
+
+CHECKOUT OPTIONS:
+  ObjectiveDDP:
+    :commit: 0470cdb66ebfe6de5c46f3fb15c8cf5d6ba0049f
+    :git: git@github.com:boundsj/ObjectiveDDP.git
 
 SPEC CHECKSUMS:
   CocoaAsyncSocket: 45bdbbc1c0a5ed0640ff4c42af325ba43a2f099a
+  M13OrderedDictionary: 8f721284b4960aabaf567b7894911a45cb9c71b0
+  ObjectiveDDP: d7eb090d8ce678d83ff0645a03ff62e66a948b73
+  SocketRocket: 79a68ae186063c65e1fe6f638b1ae2927aa5f304
 
 COCOAPODS: 0.35.0

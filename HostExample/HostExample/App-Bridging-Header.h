@@ -12,4 +12,12 @@
 #import "GCDAsyncUdpSocket.h"
 #import "GCDAsyncSocket.h"
 
+#import <SocketRocket/SRWebSocket.h>
+#import "MeteorClient.h"
+#import "ObjectiveDDP.h"
+#import <ObjectiveDDP/MeteorClient.h>
+#import <ObjectiveDDP/BSONIdGenerator.h>
+
+#import "bridge.m"
+
 #endif
